@@ -1,2 +1,2 @@
 # CSE327_project
-**this woul be here for my project
+**this would be here for my project
