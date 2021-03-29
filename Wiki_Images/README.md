@@ -3,7 +3,9 @@ This folder contains wiki images
 ![Cart](https://user-images.githubusercontent.com/80451777/112819304-44e8a400-90a6-11eb-9cb4-bed097d72d50.jpg)
 ![Homepage](https://user-images.githubusercontent.com/80451777/112817769-9e4fd380-90a4-11eb-9987-a76084248386.jpg)
 ![Register](https://user-images.githubusercontent.com/80451777/112817783-a3ad1e00-90a4-11eb-994d-f5a6c103dfec.jpg)
-![Login](https://user-images.githubusercontent.com/80451777/112817793-a60f7800-90a4-11eb-8c3c-fd32a9f1dd77.jpg)
+![Login](https://user-images.githubusercontent.com/80451777/112817793-a60f7800-90a4-11eb-8c3c-fd32a9f1dd77.jpg)<img width="530" alt="Use_Case_Diagram" src="https://user-images.githubusercontent.com/80451777/112827421-21c2f200-90b0-11eb-9757-917c6a712f32.png">
+![IMG_20210329_162532](https://user-images.githubusercontent.com/80451777/112827441-2a1b2d00-90b0-11eb-934c-95db1913b4a6.png)
+
 ![RequestApproved UI](https://user-images.githubusercontent.com/80451777/112817806-a9a2ff00-90a4-11eb-9981-3dfe97f65e8b.jpg)
 ![PAYMENT UI](https://user-images.githubusercontent.com/80451777/112817813-ac055900-90a4-11eb-910e-39bb5dae178a.jpg)
 
