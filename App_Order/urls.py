@@ -1,12 +1,15 @@
 from django.urls import path
-from App_Login import views
-app_name = 'App_Login'
-
-
+from . import views
+app_name ="App_Order"
 
 urlpatterns = [
-    path('signup/', views.sign_up, name='signup'),
-    path('login/', views.login_user, name='login'),
-    path('logout/', views.logout_user, name='logout'),
-    path('profile/', views.user_profile, name='profile'),
+
+    path('add/<pk>/',views.add_to_cart,name="add"),
+    path('cart/',views.cart_view,name="cart"),
+    path('remove/<pk>/', views.remove_from_cart, name="remove"),
+    path('cart/', views.cart_view, name="cart"),
+    path('increase/<pk>/', views.increase_cart, name="increase"),
+    path('decrease/<pk>/', views.decrease_cart, name="decrease"),
+
+
 ]
