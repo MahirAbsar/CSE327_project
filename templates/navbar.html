@@ -2,7 +2,7 @@
 {% load cart_tag %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'App_Shop:home' %}"> <i>Food Wagon</i> </a>
+    <a class="navbar-brand" href="{% url 'App_Shop:home' %}" style="font-family: 'Dancing Script', cursive; font-weight:bold; font-size:3rem"> <i>Food Wagon</i> </a>
     <form class="search-bar" action="{% url 'App_Shop:search' %}" method="GET">
       <div>
       <input type="text" name="search-item" placeholder="Search....">
