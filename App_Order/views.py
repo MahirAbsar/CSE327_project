@@ -1,61 +1,120 @@
-from django.shortcuts import render, HttpResponseRedirect
-from django.urls import reverse
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
 
-# Authetication
-from django.contrib.auth.forms import AuthenticationForm
+# Authentications
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout, authenticate
 
-# Forms and Models
-from App_Login.models import Profile
-from App_Login.forms import ProfileForm, SignUpForm
-
+# Model
+from App_Order.models import Cart, Order
+from App_Shop.models import Product
 # Messages
 from django.contrib import messages
-
 # Create your views here.
 
-def sign_up(request):
-    form = SignUpForm()
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Account Created Successfully!")
-            return HttpResponseRedirect(reverse('App_Login:login'))
-    return render(request, 'App_Login/sign_up.html', context={'form':form})
+@login_required
+def add_to_cart(request, pk):
+    item = get_object_or_404(Product, pk=pk)
+    print("Item")
+    print(item)
+    order_item = Cart.objects.get_or_create(item=item, user=request.user, purchased=False)
+    print("Order Item Object:")
+    print(order_item)
+    print(order_item[0])
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    print("Order Qs:")
+    print(order_qs)
+    #print(order_qs[0])
+    if order_qs.exists():
+        order = order_qs[0]
+        print("If Order exist")
+        print(order)
+        if order.orderitems.filter(item=item).exists():
+            order_item[0].quantity += 1
+            order_item[0].save()
+            messages.info(request, "This item quantity was updated.")
+            return redirect("App_Shop:home")
+        else:
+            order.orderitems.add(order_item[0])
+            messages.info(request, "This item was added to your cart.")
+            return redirect("App_Shop:home")
+    else:
+        order = Order(user=request.user)
+        order.save()
+        order.orderitems.add(order_item[0])
+        messages.info(request, "This item was added to your cart.")
+        return redirect("App_Shop:home")
 
+@login_required
+def cart_view(request):
+    carts = Cart.objects.filter(user=request.user, purchased=False)
+    orders = Order.objects.filter(user=request.user, ordered=False)
+    if carts.exists() and orders.exists():
+        order = orders[0]
+        return render(request, 'App_Order/cart.html', context={'carts':carts, 'order':order})
+    else:
+        messages.warning(request, "You don't have any item in your cart!")
+        return redirect("App_Shop:home")
 
-def login_user(request):
-    form = AuthenticationForm()
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return HttpResponseRedirect(reverse('App_Shop:home'))
-    return render(request, 'App_Login/login.html', context={'form':form})
+@login_required
+def remove_from_cart(request, pk):
+    item = get_object_or_404(Product, pk=pk)
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    if order_qs.exists():
+        order = order_qs[0]
+        if order.orderitems.filter(item=item).exists():
+            order_item = Cart.objects.filter(item=item, user=request.user, purchased=False)[0]
+            order.orderitems.remove(order_item)
+            order_item.delete()
+            messages.warning(request, "This item was removed form your cart")
+            return redirect("App_Order:cart")
+        else:
+            messages.info(request, "This item was not in your cart.")
+            return redirect("App_Shop:home")
+    else:
+        messages.info(request, "You don't have an active order")
+        return redirect("App_Shop:home")
+
+@login_required
+def increase_cart(request, pk):
+    item = get_object_or_404(Product, pk=pk)
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    if order_qs.exists():
+        order = order_qs[0]
+        if order.orderitems.filter(item=item).exists():
+            order_item = Cart.objects.filter(item=item, user=request.user, purchased=False)[0]
+            if order_item.quantity >= 1:
+                order_item.quantity += 1
+                order_item.save()
+                messages.info(request, f"{item.name} quantity has been updated")
+                return redirect("App_Order:cart")
+        else:
+            messages.info(request, f"{item.name} is not in your cart")
+            return redirect("App_Shop:home")
+    else:
+        messages.info(request, "You don't have an active order")
+        return redirect("App_Shop:home")
 
 
 @login_required
-def logout_user(request):
-    logout(request)
-    messages.warning(request, "You are logged out!!")
-    return HttpResponseRedirect(reverse('App_Shop:home'))
-
-
-@login_required
-def user_profile(request):
-    profile = Profile.objects.get(user=request.user)
-    form = ProfileForm(instance=profile)
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Change Saved!!")
-            form = ProfileForm(instance=profile)
-    return render(request, 'App_Login/change_profile.html', context={'form':form})
+def decrease_cart(request, pk):
+    item = get_object_or_404(Product, pk=pk)
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    if order_qs.exists():
+        order = order_qs[0]
+        if order.orderitems.filter(item=item).exists():
+            order_item = Cart.objects.filter(item=item, user=request.user, purchased=False)[0]
+            if order_item.quantity > 1:
+                order_item.quantity -= 1
+                order_item.save()
+                messages.info(request, f"{item.name} quantity has been updated")
+                return redirect("App_Order:cart")
+            else:
+                order.orderitems.remove(order_item)
+                order_item.delete()
+                messages.warning(request, f"{item.name} item has been removed from your cart")
+                return redirect("App_Order:cart")
+        else:
+            messages.info(request, f"{item.name} is not in your cart")
+            return redirect("App_Shop:home")
+    else:
+        messages.info(request, "You don't have an active order")
+        return redirect("App_Shop:home")
